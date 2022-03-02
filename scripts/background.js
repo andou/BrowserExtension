@@ -41,6 +41,7 @@ runtimeObj.onMessage.addListener( ( request, sender, callback ) =>
 		case 'InvalidateCache': InvalidateCache(); callback(); return true;
 		case 'FetchSteamUserData': FetchSteamUserData( callback ); return true;
 		case 'GetCurrentPlayers': GetCurrentPlayers( request.appid, callback ); return true;
+		case 'GetSteamSpyAppDetails': GetSteamSpyAppDetails( request.appid, callback ); return true;
 		case 'GetPrice': GetPrice( request, callback ); return true;
 		case 'StoreWishlistAdd': StoreWishlistAdd( request.appid, callback ); return true;
 		case 'StoreWishlistRemove': StoreWishlistRemove( request.appid, callback ); return true;
@@ -150,6 +151,16 @@ function GetPrice( request, callback )
 	}
 
 	fetch( url, {
+		credentials: 'omit',
+	} )
+		.then( ( response ) => response.json() )
+		.then( callback )
+		.catch( ( error ) => callback( { success: false, error: error.message } ) );
+}
+
+function GetSteamSpyAppDetails( appid, callback )
+{
+	fetch( `https://steamspy.com/api.php?request=appdetails&appid=${parseInt( appid, 10 )}`, {
 		credentials: 'omit',
 	} )
 		.then( ( response ) => response.json() )

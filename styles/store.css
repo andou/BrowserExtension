@@ -59,6 +59,16 @@ a.steamdb_link:hover {
 	display: inline-block;
 }
 
+.steamdb_spystats_title {
+	padding-bottom: 4px;
+}
+
+.steamdb_spystats_name {
+	min-width: 135px;
+	margin-right: 5px;
+	display: inline-block;
+}
+
 .steamdb_stats_number {
 	font-weight: bold;
 	color: #67c1f5;

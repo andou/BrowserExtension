@@ -497,7 +497,51 @@ function DrawOnlineStatsWidget( items )
 
 	blockInner.appendChild( line );
 
+	const blockInnerSpyStat = document.createElement( 'div' );
+	blockInnerSpyStat.className = 'block_content_inner';
+
+	line = document.createElement( 'p' );
+	line.className = 'steamdb_spystats_title';
+	lineText = document.createElement( 'strong' );
+	lineText.className = 'steamdb_spystats_name';
+	lineText.textContent = 'Playtime estimations by SteamSpy';
+	line.appendChild( lineText );
+	blockInnerSpyStat.appendChild( line );
+
+	const blockSpyStat = document.createElement( 'div' );
+	blockSpyStat.className = 'block responsive_apppage_details_right steamdb_stats';
+	blockSpyStat.appendChild( blockInnerSpyStat );
+
+	// median total playtime
+	const median_forever = document.createElement( 'span' );
+	median_forever.className = 'steamdb_stats_number';
+	median_forever.textContent = '…';
+
+	line = document.createElement( 'p' );
+	lineText = document.createElement( 'span' );
+	lineText.className = 'steamdb_spystats_name';
+	lineText.textContent = 'Median Total Playtime:';
+	line.appendChild( lineText );
+	line.appendChild( median_forever );
+
+	blockInnerSpyStat.appendChild( line );
+
+	// average total playtime
+	const average_forever = document.createElement( 'span' );
+	average_forever.className = 'steamdb_stats_number';
+	average_forever.textContent = '…';
+
+	line = document.createElement( 'p' );
+	lineText = document.createElement( 'span' );
+	lineText.className = 'steamdb_spystats_name';
+	lineText.textContent = 'Average Total Playtime:';
+	line.appendChild( lineText );
+	line.appendChild( average_forever );
+
+	blockInnerSpyStat.appendChild( line );
+
 	// Add to container
+	container.insertBefore( blockSpyStat, container.firstChild );
 	container.insertBefore( block, container.firstChild );
 
 	// Add responsive text heading
@@ -585,6 +629,52 @@ function DrawOnlineStatsWidget( items )
 				}
 			}
 		}
+	} );
+
+	SendMessageToBackgroundScript( {
+		contentScriptQuery: 'GetSteamSpyAppDetails',
+		appid: GetCurrentAppID(),
+	}, ( response ) =>
+	{
+		if( !response || ( response.appid !== GetCurrentAppID() ) )
+		{
+			WriteLog( 'GetSteamSpyAppDetails failed to load' );
+
+			block.remove();
+
+			return;
+		}
+
+		WriteLog( 'GetSteamSpyAppDetails loaded' );
+
+		const convertMinsToHrsMins = ( mins ) =>
+		{
+			let h = Math.floor( mins / 60 );
+			let m = mins % 60;
+
+			if( h >= 1 )
+			{
+				m = m / 60;
+				h = h + m;
+				h = Math.floor( h * 100 ) / 100;
+				return`${h} hrs`;
+			}
+			else
+			{
+				return`${m} mins`;
+			}
+		};
+
+		if( response.median_forever > 0 )
+		{
+			median_forever.textContent = convertMinsToHrsMins( response.median_forever );
+		}
+
+		if( response.average_forever > 0 )
+		{
+			average_forever.textContent = convertMinsToHrsMins( response.average_forever );
+		}
+		
 	} );
 }
 
